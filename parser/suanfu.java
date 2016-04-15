@@ -19,12 +19,12 @@ public class suanfu {
 		fus.add(new fu('E',"T" ));
 		fus.add(new fu('T',"T*F" ));
 		fus.add(new fu('T',"F" ));
-		fus.add(new fu('F',"PlF" ));
+		fus.add(new fu('F',"P^F" ));
 		fus.add(new fu('F',"P" ));
 		fus.add(new fu('P',"(E)" ));
 		fus.add(new fu('P',"i" ));
 		fus.add(new fu(' ',"#E#" ));
-		this.in = "i+i*(i)+(i+i)li";
+		this.in = "i+i*(i)+(i+i)^i";
 	}
 	
 	/**
