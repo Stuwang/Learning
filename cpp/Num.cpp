@@ -71,7 +71,12 @@ public:
 			fenzi -= fenmu;
 			shift();
 		}
-	}
+	};
+
+	void ToFunshu() {
+		fenzi += num * fenmu;
+		num = 0;
+	};
 
 	Num operator-() const {
 		Num ret ;
@@ -101,32 +106,45 @@ public:
 		ret.shift();
 		return ret;
 	};
-	// friend Num operator/(const Num& n1,const Num& n2);
 
-	Num Up() const{
-		Num ret;
-		if (*this > 0 && fenzi != 0 ) {
-			ret = Num(num + 1, 0, 1);
-		} else {
-			ret = Num(num, 0, 1);
-		}
+	friend Num operator/(const Num& num1, const Num& num2) {
+		Num t1 = num1;
+		Num t2 = num2;
+		t1.ToFunshu();
+		t2.ToFunshu();
+		Num ret(0, t1.fenzi * t2.fenmu, t1.fenmu * t2.fenzi);
+		ret.shift();
 		return ret;
 	};
-	Num Down()const {
-		if (*this < 0 && fenzi != 0 ) {
-			return Num(num - 1, 0, 1);
-		}
-		return Num(num, 0, 1);
-	};
 
-	Num ssheru() {
+	// friend Num operator/(const Num& n1,const Num& n2);
 
-	};
+	// Num Up() const{
+	// 	Num ret;
+	// 	if (*this > 0 && fenzi != 0 ) {
+	// 		ret = Num(num + 1, 0, 1);
+	// 	} else {
+	// 		ret = Num(num, 0, 1);
+	// 	}
+	// 	return ret;
+	// };
+	// Num Down()const {
+	// 	if (*this < 0 && fenzi != 0 ) {
+	// 		return Num(num - 1, 0, 1);
+	// 	}
+	// 	return Num(num, 0, 1);
+	// };
+
+	// Num ssheru() {
+
+	// };
 
 	friend bool operator == (Num n1, Num n2) {
 		n1.shift();
 		n2.shift();
-		return n1.num == n2.num && n1.fenzi	== n2.fenzi && n1.fenmu == n2.fenmu;
+		return n1.num == n2.num
+		       && n1.fenzi	== n2.fenzi
+		       && n1.fenmu == n2.fenmu;
 	}
 
 	friend bool operator < (Num n1, Num n2) {
@@ -186,7 +204,5 @@ int main() {
 	std::cout << "Num " << fly::Num(0, -1, 2) << std::endl;
 	std::cout << fly::Num(0, -1, 2)*fly::Num(0, 1, 2)  << std::endl;
 
-	fly::Num n1 = a.Up();
-	std::cout <<  n1 << std::endl;
-	std::cout << fly::Num(0, -1, 2).Down()  << std::endl;
+	std::cout << fly::Num(0, 1, 2)/fly::Num(0, -1, 2)  << std::endl;
 }
