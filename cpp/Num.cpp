@@ -205,4 +205,5 @@ int main() {
 	std::cout << fly::Num(0, -1, 2)*fly::Num(0, 1, 2)  << std::endl;
 
 	std::cout << fly::Num(0, 1, 2)/fly::Num(0, -1, 2)  << std::endl;
+	std::cout << fly::Num(0, 0, 2)/fly::Num(0, -1, 2)  << std::endl;
 }
