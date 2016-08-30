@@ -7,4 +7,4 @@ all:$(CLASS)
 	java suanfu
 
 clean:
-	rm *.class
+	rm *.class -rf
