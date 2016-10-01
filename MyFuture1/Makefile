@@ -1,6 +1,6 @@
-COMPLILE=clang++ -std=c++11 -O2 -c
+COMPLILE=clang++ -std=c++11 -O2 -c 
 
-LINKE=clang++ -std=c++11 -O2 -pthread
+LINKE=clang++ -std=c++11 -O2 -pthread -g
 
 TARGETS=main.out
 

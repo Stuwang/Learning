@@ -11,16 +11,58 @@
 using namespace std;
 using namespace pp;
 
-int main() {
+void TEST_MYFUTURE() {
 	Promise<int> p;
 	Future<int> f = p.GetFuture();
 
 	thread t{[&]() {
+		assert(p.Valid());
+		auto p2 = std::move(p);
+		assert(!p.Valid());
+		assert(p2.Valid());
+		Promise<int> p3{std::move(p2)};
+		assert(!p2.Valid());
 		this_thread::sleep_for(chrono::milliseconds(1000));
 		std::cout << "set value " << std::endl;
-		p.SetValue(20);
+		p3.SetValue(20);
 	}};
-
-	std::cout << "get " << f.Get() << std::endl;
+	assert(f.Valid());
+	auto f2 = std::move(f);
+	assert(!f.Valid());
+	assert(f2.Valid());
+	Future<int> f3{std::move(f2)};
+	assert(!f2.Valid());
+	std::cout << "get " << f3.Get() << std::endl;
 	t.join();
+}
+
+void TEST_VOID_MYFUTURE() {
+	Promise<void> p;
+	Future<void> f = p.GetFuture();
+
+	thread t{[&]() {
+		assert(p.Valid());
+		auto p2 = std::move(p);
+		assert(!p.Valid());
+		assert(p2.Valid());
+		Promise<void> p3{std::move(p2)};
+		assert(!p2.Valid());
+		this_thread::sleep_for(chrono::milliseconds(1000));
+		std::cout << "set value " << std::endl;
+		p3.SetValue();
+	}};
+	assert(f.Valid());
+	auto f2 = std::move(f);
+	assert(!f.Valid());
+	assert(f2.Valid());
+	Future<void> f3{std::move(f2)};
+	assert(!f2.Valid());
+	f3.Get();
+	std::cout << "get ok" << std::endl;
+	t.join();
+}
+
+int main() {
+	TEST_MYFUTURE();
+	TEST_VOID_MYFUTURE();
 }
