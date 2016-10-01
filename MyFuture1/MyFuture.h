@@ -293,6 +293,49 @@ private:
 	DateType *data_;
 };
 
+// template<class R>
+// Future<R>
+// Async(std::function<R()> f) {
+// 	Promise<R> *p = new Promise<R>();
+// 	Future<R> f_r = p->GetFuture();
+// 	std::thread t{[ = ]() {
+// 		R r = f();
+// 		p->SetValue(r);
+// 		delete p;
+// 	}};
+// 	t.detach();
+// 	return std::move(f_r);
+// };
+
+// template<class R, class ...Args>
+// Future<R>
+// Async(std::function<R()> f, Args&& ...args) {
+// 	Promise<R> *p = new Promise<R>();
+// 	Future<R> f_r = p->GetFuture();
+// 	std::thread t{[ = ]() {
+// 		R r = f(std::forward<Args>(args)...);
+// 		p->SetValue(r);
+// 		delete p;
+// 	}};
+// 	t.detach();
+// 	return std::move(f_r);
+// };
+
+template<class Fn, class ...Args>
+Future<typename std::result_of<Fn(Args...)>::type >
+Async(Fn&& f, Args&& ...args) {
+	using R = typename std::result_of<Fn(Args...)>::type ;
+	Promise<R> *p = new Promise<R>();
+	Future<R> f_r = p->GetFuture();
+	std::thread t{[ = ]() {
+		R r = f(std::forward<Args>(args)...);
+		p->SetValue(r);
+		delete p;
+	}};
+	t.detach();
+	return std::move(f_r);
+};
+
 }// namespace pp
 
 #endif

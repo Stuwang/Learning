@@ -62,7 +62,25 @@ void TEST_VOID_MYFUTURE() {
 	t.join();
 }
 
+int fuck() {
+	cout << "hahhaha " << endl;
+	return 20;
+}
+
+void TEST_ASYNC() {
+	std::function<int()> fun = fuck;
+	auto f = Async(fuck);
+	std::cout << "get " << f.Get() << std::endl;
+
+	auto f2 = Async([]() {
+		cout << "hahhaha " << endl;
+		return 20;
+	});
+	std::cout << "get " << f2.Get() << std::endl;
+};
+
 int main() {
 	TEST_MYFUTURE();
 	TEST_VOID_MYFUTURE();
+	TEST_ASYNC();
 }
