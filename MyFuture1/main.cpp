@@ -22,7 +22,7 @@ void TEST_MYFUTURE() {
 		assert(p2.Valid());
 		Promise<int> p3{std::move(p2)};
 		assert(!p2.Valid());
-		this_thread::sleep_for(chrono::milliseconds(1000));
+		// this_thread::sleep_for(chrono::milliseconds(1000));
 		std::cout << "set value " << std::endl;
 		p3.SetValue(20);
 	}};
@@ -47,7 +47,7 @@ void TEST_VOID_MYFUTURE() {
 		assert(p2.Valid());
 		Promise<void> p3{std::move(p2)};
 		assert(!p2.Valid());
-		this_thread::sleep_for(chrono::milliseconds(1000));
+		// this_thread::sleep_for(chrono::milliseconds(1000));
 		std::cout << "set value " << std::endl;
 		p3.SetValue();
 	}};
@@ -73,7 +73,7 @@ void TEST_ASYNC() {
 	std::cout << "get " << f.Get() << std::endl;
 
 	auto f2 = Async([]() {
-		cout << "hahhaha " << endl;
+		cout << "hahhaha -------- " << endl;
 		return 20;
 	});
 	std::cout << "get " << f2.Get() << std::endl;
