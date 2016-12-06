@@ -59,8 +59,8 @@ struct Storgedata {
 		cond_.notify_one();
 	};
 
-	Storgedata(const Storgedata&);
-	Storgedata(Storgedata&&);
+	Storgedata(const Storgedata&) = delete;
+	Storgedata(Storgedata&&) = delete;
 	Storgedata& operator=(Storgedata&&) = delete;
 	Storgedata& operator=(const Storgedata&) = delete;
 
