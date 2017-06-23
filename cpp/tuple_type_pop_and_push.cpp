@@ -15,13 +15,13 @@ struct tuple_pop_front<tuple<T,Arg...>>{
 };
 
 ///  this is error !!!
-template<class... >
-struct tuple_pop_back;
+// template<class... >
+// struct tuple_pop_back;
 
-template<class ...Arg,class T>
-struct tuple_pop_back<tuple<Arg...,T>>{
-  typedef tuple<Arg...> value_type;
-};
+// template<class ...Arg>
+// struct tuple_pop_back<tuple<Arg...,T>> :tuple_pop_back<> {
+//   typedef tuple<Arg...> value_type;
+// };
 
 ///
 template<class ...>
