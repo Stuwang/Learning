@@ -1,16 +1,12 @@
 #include <type_traits>
-#include <iostream>
+#include <functional>
 
 using namespace std;
-
 
 template<typename ...>
 struct TypeList {};
 
-namespace Internel {
-
-// size_t
-// using Size;
+// Size
 template<typename ...>
 struct Size;
 
@@ -29,15 +25,15 @@ struct Empty<TypeList<Args...>> {
 };
 
 template<typename ...>
-struct _HeadType ;
+struct _Front ;
 
 template<typename T, typename ...Args>
-struct _HeadType<TypeList<T, Args...>> {
+struct _Front<TypeList<T, Args...>> {
 	typedef T ValueType;
 };
 
 template<typename _TypeList>
-using Front = typename _HeadType<_TypeList>::ValueType;
+using Front = typename _Front<_TypeList>::ValueType;
 
 // // type
 // using Back;
@@ -97,7 +93,7 @@ struct _PopFront;
 
 template<typename T, typename...Args>
 struct _PopFront<TypeList<T, Args...>> {
-	static_assert(1 <= sizeof...(Args), "");
+	static_assert(0 <= sizeof...(Args), "");
 	typedef TypeList<Args...> ValueType;
 };
 
@@ -146,62 +142,62 @@ using At = typename _AtProxy<index, T>::ValueType;
 
 // FirstN
 template<int N, typename T, typename ...Args>
-struct _FirstN;
+struct _TakeN;
 
 template<int N, typename ...Args1, typename T, typename ...Args2>
-struct _FirstN<N, TypeList<Args1...>, TypeList<T, Args2...>>:
-	        _FirstN < N - 1, TypeList<Args1..., T>, TypeList<Args2...> > {};
+struct _TakeN<N, TypeList<Args1...>, TypeList<T, Args2...>>:
+	        _TakeN < N - 1, TypeList<Args1..., T>, TypeList<Args2...> > {};
 
 template<typename ...Args1, typename T, typename ...Args2>
-struct _FirstN<0, TypeList<Args1...>, TypeList<T, Args2...>> {
+struct _TakeN<0, TypeList<Args1...>, TypeList<T, Args2...>> {
 	typedef TypeList<Args1...> ValueType;
 };
 
 template<typename ...Args>
-struct _FirstN<0, TypeList<Args...>, TypeList<>> {
+struct _TakeN<0, TypeList<Args...>, TypeList<>> {
 	typedef TypeList<Args...> ValueType;
 };
 
 template<int N, typename T>
-struct _FirstNProxy;
+struct _TakeNProxy;
 
 template<int N, typename ...Args>
-struct _FirstNProxy<N, TypeList<Args...>>: _FirstN<N, TypeList<>, TypeList<Args...>> {};
+struct _TakeNProxy<N, TypeList<Args...>>: _TakeN<N, TypeList<>, TypeList<Args...>> {};
 
 template<int N, typename T>
-using FirstN = typename _FirstNProxy<N, T>::ValueType;
+using TakeN = typename _TakeNProxy<N, T>::ValueType;
 
 template<int N, typename Args>
-struct _LastN;
+struct _DropN;
 
 template <int N, typename T, typename...Args>
-struct _LastN<N, TypeList<T, Args...>>
-	                                    : _LastN < N - 1, TypeList<Args... >> {};
+struct _DropN<N, TypeList<T, Args...>>
+	                                    : _DropN < N - 1, TypeList<Args... >> {};
 
 template<typename T, typename ...Args>
-struct _LastN<0, TypeList<T, Args...>> {
+struct _DropN<0, TypeList<T, Args...>> {
 	typedef TypeList<T, Args...> ValueType;
 };
 
 template<>
-struct _LastN<0, TypeList<>> {
+struct _DropN<0, TypeList<>> {
 	typedef TypeList<> ValueType;
 };
 
 template<int N, typename ...Args>
-struct _LastNProxy;
+struct _DropNProxy;
 
 template<int N, typename ...Args>
-struct _LastNProxy<N, TypeList<Args...>> : _LastN<N, TypeList<Args...>> {};
+struct _DropNProxy<N, TypeList<Args...>> : _DropN<N, TypeList<Args...>> {};
 
 template<int N, typename Args>
-using LastN = typename _LastNProxy<N, Args>::ValueType;
+using DropN = typename _DropNProxy<N, Args>::ValueType;
 
 
 template<int N, typename T, typename List>
 struct _Insert {
-	typedef FirstN<N, List> Head;
-	typedef LastN<N, List> Tail;
+	typedef TakeN<N, List> Head;
+	typedef DropN<N, List> Tail;
 	typedef Connect<PushBack<T, Head>, Tail> ValueType;
 };
 
@@ -210,8 +206,8 @@ using Insert = typename _Insert<N, T, List>::ValueType;
 
 template<int N, typename List>
 struct _Erase {
-	typedef FirstN <N, List > Head;
-	typedef LastN <N, List > Tail;
+	typedef TakeN <N, List > Head;
+	typedef DropN <N, List > Tail;
 	typedef Connect<Head, PopFront<Tail> > ValueType;
 };
 
@@ -223,7 +219,7 @@ struct _PopBack;
 
 template<typename ...List>
 struct _PopBack<TypeList<List...>> {
-	typedef FirstN < sizeof...(List) - 1, TypeList<List... >> ValueType;
+	typedef TakeN < sizeof...(List) - 1, TypeList<List... >> ValueType;
 };
 
 
@@ -233,163 +229,116 @@ using PopBack = typename _PopBack < List >::ValueType;
 void Test() {
 	typedef TypeList<int, char> typelist;
 
-	static_assert(2 == Size<typelist>::Value, "");
-	static_assert(!Empty<typelist>::Value, "");
+	// Size
+	static_assert(2 == Size<TypeList<int, char>>::Value, "");
+	static_assert(0 == Size<TypeList<>>::Value, "");
+	// Empty
+	static_assert(!Empty<TypeList<int, char>>::Value, "");
+	static_assert(Empty<TypeList<>>::Value, "");
 
-	static_assert(std::is_same<Front<typelist>, int>::value, "");
+	// Front
+	static_assert(std::is_same<Front<TypeList<int, char>>, int>::value, "");
+	static_assert(std::is_same<Front<TypeList<int>>, int>::value, "");
+
+	// Back
 	static_assert(std::is_same <
 	              Back<TypeList<int, char>>,
 	              char >::value, "");
 	static_assert(std::is_same <
-	              PushBack<double, TypeList<int, char>>,
-	              TypeList<int, char, double >
-	              >::value, "");
+	              Back<TypeList<char>>,
+	              char >::value, "");
 
-	static_assert(std::is_same <
-	              PushFront<double, TypeList<int, char>>,
-	              TypeList<double, int, char>
-	              >::value, "");
-
-	static_assert(std::is_same <
-	              PopFront<TypeList<int, char>>,
-	              TypeList<char>
-	              >::value, "");
-
-	static_assert(std::is_same <
-	              Connect <TypeList<int>, TypeList<char>>,
-	              TypeList<int, char>
-	              >::value, "");
-
+	// At
 	static_assert(std::is_same <
 	              At <0, TypeList<int, char, float, double>>,
 	              int
 	              >::value, "");
-	// error
-	// static_assert(std::is_same <
-	//               At <4, TypeList<int, char, float, double>>,
-	//               int
-	//               >::value, "");
 	static_assert(std::is_same <
 	              At <3, TypeList<int, char, float, double>>,
 	              double
 	              >::value, "");
 
+	// PushBack
 	static_assert(std::is_same <
-	              FirstN <0, TypeList<int, char, float, double>>,
+	              PushBack<double, TypeList<int, char>>,
+	              TypeList<int, char, double >
+	              >::value, "");
+
+	// PushFront
+	static_assert(std::is_same <
+	              PushFront<double, TypeList<int, char>>,
+	              TypeList<double, int, char>
+	              >::value, "");
+
+	// PopFront
+	static_assert(std::is_same <
+	              PopFront<TypeList<int, char>>,
+	              TypeList<char>
+	              >::value, "");
+	static_assert(std::is_same <
+	              PopFront<TypeList<int>>,
+	              TypeList<>
+	              >::value, "");
+
+	// PopBack
+	static_assert(std::is_same <
+	              PopBack<TypeList<int, char>>, TypeList<int>
+	              >::value, "");
+	static_assert(std::is_same <
+	              PopBack<TypeList<int>>, TypeList<>
+	              >::value, "");
+
+	// Connect
+	static_assert(std::is_same <
+	              Connect <TypeList<int>, TypeList<char>>,
+	              TypeList<int, char>
+	              >::value, "");
+
+	// TakeN
+	static_assert(std::is_same <
+	              TakeN <0, TypeList<int, char, float, double>>,
 	              TypeList<>
 	              >::value, "");
 
 	static_assert(std::is_same <
-	              FirstN <1, TypeList<int, char, float, double>>,
+	              TakeN <1, TypeList<int, char, float, double>>,
 	              TypeList<int>
 	              >::value, "");
 	static_assert(std::is_same <
-	              FirstN <4, TypeList<int, char, float, double>>,
+	              TakeN <4, TypeList<int, char, float, double>>,
 	              TypeList<int, char, float, double>
 	              >::value, "");
 
-	// static_assert(std::is_same <
-	//               LastN <0, TypeList<>>, TypeList<>
-	//               >::value, "");
+	// DropN
 	static_assert(std::is_same <
-	              LastN<0, TypeList<>>, TypeList<>
+	              DropN<0, TypeList<int>>, TypeList<int>
+	              >::value, "");
+	static_assert(std::is_same <
+	              DropN<0, TypeList<>>, TypeList<>
+	              >::value, "");
+	static_assert(std::is_same <
+	              DropN<2, TypeList<int, char>>, TypeList<>
 	              >::value, "");
 
+
+	// Insert
 	static_assert(std::is_same <
 	              Insert<0, int, TypeList<>>, TypeList<int>
 	              >::value, "");
+	static_assert(std::is_same <
+	              Insert<1, int, TypeList<char>>, TypeList<char, int>
+	              >::value, "");
+	static_assert(std::is_same <
+	              Insert<1, int, TypeList<char, double>>, TypeList<char, int, double>
+	              >::value, "");
 
+	// Erase
 	static_assert(std::is_same <
 	              Erase<0, TypeList<int, char>>, TypeList<char>
 	              >::value, "");
-
 	static_assert(std::is_same <
-	              PopBack<TypeList<int, char>>, TypeList<int>
+	              Erase<1, TypeList<int, char>>, TypeList<int>
 	              >::value, "");
-
-
-}
-
-
-namespace GoogleChrome {
-// Packs a list of types to hold them in a single type.
-template <typename... Types>
-struct TypeList {};
-
-// Used for DropTypeListItem implementation.
-template <size_t n, typename List>
-struct DropTypeListItemImpl;
-
-// Do not use enable_if and SFINAE here to avoid MSVC2013 compile failure.
-template <size_t n, typename T, typename... List>
-struct DropTypeListItemImpl<n, TypeList<T, List...>>
-	        : DropTypeListItemImpl < n - 1, TypeList<List... >> {};
-
-template <typename T, typename... List>
-struct DropTypeListItemImpl<0, TypeList<T, List...>> {
-	using Type = TypeList<T, List...>;
-};
-
-template <>
-struct DropTypeListItemImpl<0, TypeList<>> {
-	using Type = TypeList<>;
-};
-
-// A type-level function that drops |n| list item from given TypeList.
-template <size_t n, typename List>
-using DropTypeListItem = typename DropTypeListItemImpl<n, List>::Type;
-
-// Used for TakeTypeListItem implementation.
-template <size_t n, typename List, typename... Accum>
-struct TakeTypeListItemImpl;
-
-// Do not use enable_if and SFINAE here to avoid MSVC2013 compile failure.
-template <size_t n, typename T, typename... List, typename... Accum>
-struct TakeTypeListItemImpl<n, TypeList<T, List...>, Accum...>
-	: TakeTypeListItemImpl < n - 1, TypeList<List...>, Accum..., T > {};
-
-template <typename T, typename... List, typename... Accum>
-struct TakeTypeListItemImpl<0, TypeList<T, List...>, Accum...> {
-	using Type = TypeList<Accum...>;
-};
-
-template <typename... Accum>
-struct TakeTypeListItemImpl<0, TypeList<>, Accum...> {
-	using Type = TypeList<Accum...>;
-};
-
-
-template<int n, class T>
-using Take = typename TakeTypeListItemImpl<n, T>::Type;
-
-// A type-level function that takes first |n| list item from given TypeList.
-// E.g. TakeTypeListItem<3, TypeList<A, B, C, D>> is evaluated to
-// TypeList<A, B, C>.
-template <size_t n, typename List>
-using TakeTypeListItem = typename TakeTypeListItemImpl<n, List>::Type;
-
-// Used for ConcatTypeLists implementation.
-template <typename List1, typename List2>
-struct ConcatTypeListsImpl;
-
-template <typename... Types1, typename... Types2>
-struct ConcatTypeListsImpl<TypeList<Types1...>, TypeList<Types2...>> {
-	using Type = TypeList<Types1..., Types2...>;
-};
-
-void test() {
-	static_assert(std::is_same <
-	              Take<1, TypeList<char>>, TypeList<char>
-	              >::value, "");
-
-	static_assert(std::is_same <
-	              DropTypeListItem<0, TypeList<>>, TypeList<>
-	              >::value, "");
-}
-
-
-}
-
 }
 
 int main() {
