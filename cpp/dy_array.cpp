@@ -44,4 +44,5 @@ int main(){
 		}
 		printf("\n");
 	}
+	free(p);
 }

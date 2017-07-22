@@ -17,8 +17,8 @@ template <typename T>
 struct function_traits
 : public function_traits<decltype(&T::operator())>
   {
-      static constexpr char* value =
-          "in fact lambda is a const member function and a class";
+      // static constexpr char* value =
+      //     "in fact lambda is a const member function of operator";
   };
 // For generic types, directly use the result of the signature of its 'operator()'
 
@@ -83,9 +83,12 @@ struct function_traits<ReturnType(Args...)>
     static constexpr char* value = "function";
 };
 
+#define PRINT_FUNCTION_NAME\
+    std::cout << "function name : " << __func__ << " " << __LINE__ << std::endl;
 
 void test_lambda() {
-    auto lambda = [](int i) { return long(i * 10); };
+    PRINT_FUNCTION_NAME;
+    const auto lambda = [](int i) { return long(i * 10); };
 
     typedef function_traits<decltype(lambda)> traits;
 
@@ -98,6 +101,7 @@ void test_lambda() {
 
 int Test_jelper_(char, long);
 void test_row_function() {
+    PRINT_FUNCTION_NAME;
     typedef function_traits<decltype(Test_jelper_)> traits;
     static_assert(std::is_same<int, traits::result_type>::value, "err");
     static_assert(std::is_same<char, traits::arg<0>::type>::value, "err");
@@ -113,6 +117,7 @@ struct testClass {
 };
 
 void test_class_member_fun() {
+    PRINT_FUNCTION_NAME;
     typedef function_traits<decltype(&testClass::test)> traits;
     static_assert(std::is_same<int, traits::result_type>::value, "err");
     static_assert(std::is_same<char, traits::arg<0>::type>::value, "err");
@@ -122,6 +127,7 @@ void test_class_member_fun() {
 };
 
 void test_const_class_member_fun() {
+    PRINT_FUNCTION_NAME;
     typedef function_traits<decltype(&testClass::const_test)> traits;
     static_assert(std::is_same<int, traits::result_type>::value, "err");
     static_assert(std::is_same<char, traits::arg<0>::type>::value, "err");
@@ -131,6 +137,7 @@ void test_const_class_member_fun() {
 };
 
 void test_functional() {
+    PRINT_FUNCTION_NAME;
     std::function<int(char, long)> fun;
 
     typedef function_traits<decltype(fun)> traits;
@@ -148,6 +155,7 @@ struct Test_Operator {
 };
 
 void test_operator() {
+    PRINT_FUNCTION_NAME;
     Test_Operator t;
 
     typedef function_traits<decltype(t)> traits;
