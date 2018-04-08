@@ -90,4 +90,5 @@ void test_bind(){
 
 int main(){
     test_bind();
+    std::cin.get();
 }

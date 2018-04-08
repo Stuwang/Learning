@@ -43,21 +43,15 @@ struct _Back {
 };
 
 template<typename T, typename ...Args>
-struct _Back<T, Args...> : _Back<Args...> {};
+struct _Back<TypeList<T, Args...>> : _Back<TypeList<Args...>> {};
 
 template<typename T>
-struct _Back<T> {
+struct _Back<TypeList<T>> {
 	typedef T ValueType;
 };
 
-template<typename ...Args>
-struct _BackProxy;
-
-template<typename ...Args>
-struct _BackProxy<TypeList<Args...>> : _Back<Args...> {};
-
 template<typename _TypeList>
-using Back = typename _BackProxy<_TypeList>::ValueType;
+using Back = typename _Back<_TypeList>::ValueType;
 
 
 // PushBack;
@@ -119,10 +113,11 @@ struct _At {
 };
 
 template<int index, typename T, typename ...Args>
-struct _At<index, T, Args ...> : _At < index - 1, Args... > {};
+struct _At<index, TypeList<T, Args ...>> 
+: _At < index - 1,TypeList< Args... >> {};
 
 template<typename T, typename ...Args>
-struct _At < 0, T, Args... > {
+struct _At < 0, TypeList<T, Args... >> {
 	typedef T ValueType;
 };
 
@@ -131,17 +126,11 @@ struct _At < 0, T> {
 	typedef T ValueType;
 };
 
-template<int index, typename ...Args>
-struct _AtProxy;
-
-template<int index, typename ...Args>
-struct _AtProxy<index, TypeList<Args...>> : _At<index, Args...> {};
-
 template<int index, typename T>
-using At = typename _AtProxy<index, T>::ValueType;
+using At = typename _At<index, T>::ValueType;
 
 // FirstN
-template<int N, typename T, typename ...Args>
+template<int N, typename ...>
 struct _TakeN;
 
 template<int N, typename ...Args1, typename T, typename ...Args2>
@@ -159,23 +148,17 @@ struct _TakeN<0, TypeList<Args...>, TypeList<>> {
 };
 
 template<int N, typename T>
-struct _TakeNProxy;
-
-template<int N, typename ...Args>
-struct _TakeNProxy<N, TypeList<Args...>>: _TakeN<N, TypeList<>, TypeList<Args...>> {};
-
-template<int N, typename T>
-using TakeN = typename _TakeNProxy<N, T>::ValueType;
+using TakeN = typename _TakeN<N,TypeList<>, T>::ValueType;
 
 template<int N, typename Args>
 struct _DropN;
 
 template <int N, typename T, typename...Args>
 struct _DropN<N, TypeList<T, Args...>>
-	                                    : _DropN < N - 1, TypeList<Args... >> {};
+: _DropN < N - 1, TypeList<Args... >> {};
 
-template<typename T, typename ...Args>
-struct _DropN<0, TypeList<T, Args...>> {
+template<typename T,typename ...Args>
+struct _DropN<0, TypeList<T,Args...>> {
 	typedef TypeList<T, Args...> ValueType;
 };
 
@@ -184,14 +167,8 @@ struct _DropN<0, TypeList<>> {
 	typedef TypeList<> ValueType;
 };
 
-template<int N, typename ...Args>
-struct _DropNProxy;
-
-template<int N, typename ...Args>
-struct _DropNProxy<N, TypeList<Args...>> : _DropN<N, TypeList<Args...>> {};
-
 template<int N, typename Args>
-using DropN = typename _DropNProxy<N, Args>::ValueType;
+using DropN = typename _DropN<N, Args>::ValueType;
 
 
 template<int N, typename T, typename List>
@@ -214,17 +191,8 @@ struct _Erase {
 template<int N, typename List>
 using Erase = typename _Erase<N, List>::ValueType;
 
-template<typename ...List>
-struct _PopBack;
-
-template<typename ...List>
-struct _PopBack<TypeList<List...>> {
-	typedef TakeN < sizeof...(List) - 1, TypeList<List... >> ValueType;
-};
-
-
 template<typename List>
-using PopBack = typename _PopBack < List >::ValueType;
+using PopBack = TakeN <Size<List>::Value -1, List >;
 
 void Test() {
 	typedef TypeList<int, char> typelist;

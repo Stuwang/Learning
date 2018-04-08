@@ -178,10 +178,14 @@ public:
 	}
 
 	friend std::ostream& operator<<(std::ostream& self, const fly::Num& num) {
-		self << num.num;
+		self << "(";
+		if (num.num) {
+			self << num.num;
+		}
 		if (num.fenzi) {
 			self << "+" << num.fenzi << "/" << num.fenmu;
 		}
+		self << ")";
 		return self;
 	}
 
@@ -204,6 +208,6 @@ int main() {
 	std::cout << "Num " << fly::Num(0, -1, 2) << std::endl;
 	std::cout << fly::Num(0, -1, 2)*fly::Num(0, 1, 2)  << std::endl;
 
-	std::cout << fly::Num(0, 1, 2)/fly::Num(0, -1, 2)  << std::endl;
-	std::cout << fly::Num(0, 0, 2)/fly::Num(0, -1, 2)  << std::endl;
+	std::cout << fly::Num(0, 1, 2) / fly::Num(0, -1, 2)  << std::endl;
+	std::cout << fly::Num(0, 0, 2) / fly::Num(0, -1, 2)  << std::endl;
 }

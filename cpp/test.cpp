@@ -8,6 +8,7 @@
 
 using namespace std;
 
+// can't use as this !!!
 template<class T,int ...num>
 struct test{
 	using type = T[num]... ;
