@@ -78,11 +78,14 @@ struct InvokeHelper<R (T::*)(Args...)>{
     }
 };
 
+// this is function invoke
 // function invoke
 template<class R,class ...Args>
-decltype(auto) Invoke(R(*p_funtion)(Args...),Args&&... args){
+decltype(auto) Invoke(R(*p_funtion)(Args...) ,Args&&... args){
     return std::forward<p_funtion>(std::forward<Args&&>(args)...);
 }
+
+
 
 // member pointer
 template<class R,class T>
@@ -95,42 +98,22 @@ decltype(auto) Invoke(R T::* f,T* t){
     return (std::forward<T&&>(*t)).*f;
 }
 
-
 // member function
-template<class T>
-T GetT(T&& t){
-    return std::forward<T>(t);
+#define MEMBER_FUNCTION_INVOKE(modifier)\
+template<class R,class T,class ...Args>\
+decltype(auto) Invoke(R (T::* f)(Args...)modifier,T t,Args... args){\
+    return ((std::forward<T&&>(t)).*f)(std::forward<Args&&>(args)...);\
+}\
+template<class R,class T,class ...Args>\
+decltype(auto) Invoke(R (T::* f)(Args...)modifier,T* t,Args&&... args){\
+    return ((std::forward<T&&>(*t)).*f)(std::forward<Args&&>(args)...);\
 }
 
-template<class T>
-T GetT(T* t){
-    return std::forward<T>(*t);
-}
-
-template<class T>
-const T GetT(const T* t){
-    return std::forward<T>(*t);
-}
-
-template<class R,class T,class ...Args>
-decltype(auto) Invoke(R (T::* f)(Args...)const,T t,Args... args){
-    return ((std::forward<T&&>(t)).*f)(std::forward<Args&&>(args)...);
-}
-
-template<class R,class T,class ...Args>
-decltype(auto) Invoke(R (T::* f)(Args...)const,T* t,Args... args){
-    return ((std::forward<T&&>(*t)).*f)(std::forward<Args&&>(args)...);
-}
-
-template<class R,class T,class ...Args>
-decltype(auto) Invoke(R (T::* f)(Args...),T t,Args... args){
-    return ((std::forward<T&&>(t)).*f)(std::forward<Args&&>(args)...);
-}
-
-template<class R,class T,class ...Args>
-decltype(auto) Invoke(R (T::* f)(Args...),T* t,Args&&... args){
-    return ((std::forward<T&&>(*t)).*f)(std::forward<Args&&>(args)...);
-}
+MEMBER_FUNCTION_INVOKE()
+MEMBER_FUNCTION_INVOKE(const)
+MEMBER_FUNCTION_INVOKE(volatile)
+MEMBER_FUNCTION_INVOKE(const volatile)
+#undef MEMBER_FUNCTION_INVOKE
 
 template<class T,class ...Args>
 decltype(auto) Invoke(T&& t,Args&&... args){

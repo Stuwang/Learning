@@ -26,6 +26,13 @@ void Push(std::string& out, const First& f, const Args&... args) {
 	Push(out, args...);
 }
 
+template<class ...Args>
+std::string PushData(const Args& ... args){
+	std::string ret;
+	Push(ret,args...);
+	return ret;
+}
+
 #define SERA(...) 					\
 std::string Sera()const {			\
 	std::string ret;				\

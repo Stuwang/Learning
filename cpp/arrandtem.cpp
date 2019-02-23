@@ -15,9 +15,11 @@ void t(const char *){
 	cout << "**" << endl;
 }
 
-void t(char (&)[]){
-	cout << "&&" << endl;
-}
+// this can't compile ok
+// 
+// void t(char (&)[]){
+// 	cout << "&&" << endl;
+// }
 
 int main(){
 	char a[3];
